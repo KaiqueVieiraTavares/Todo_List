@@ -1,8 +1,6 @@
 package com.example.demo.controllers;
 
-import com.example.demo.dtos.UserDto;
-import com.example.demo.entities.UserEntity;
-import com.example.demo.exception.UserNotFound;
+import com.example.demo.dtos.user.UserDto;
 import com.example.demo.services.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

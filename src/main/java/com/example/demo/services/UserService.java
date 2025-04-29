@@ -1,13 +1,12 @@
 package com.example.demo.services;
 
-import com.example.demo.dtos.UserDto;
+import com.example.demo.dtos.user.UserDto;
 import com.example.demo.entities.UserEntity;
-import com.example.demo.exception.UserNotFound;
+import com.example.demo.exception.userexceptions.UserNotFound;
 import com.example.demo.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +28,9 @@ public class UserService {
         return user.stream().map(users -> modelMapper.map(users, UserDto.class)).toList();
     }
     public void deleteUser(UUID id){
+        if(!userRepository.existsById(id)){
+            throw new UserNotFound("usuario nao encontrado");
+        }
         userRepository.deleteById(id);
     }
     public UserDto updateUser(UserDto userDto, UUID id){
