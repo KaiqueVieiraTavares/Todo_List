@@ -5,19 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskDto {
-    @NotBlank(message = "o titulo é obrigatório")
+public class TaskUpdateDto {
+    @NotBlank(message = "O título não deve ser nulo")
     private String name;
 
-    @NotBlank(message = "a descrição é obrigatoria")
+    @NotBlank(message = "A descrição não deve ser nula")
     private String description;
-
-    private boolean did;
-    private UUID taskId;
-    private UUID userId;
 }

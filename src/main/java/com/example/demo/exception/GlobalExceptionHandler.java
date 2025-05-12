@@ -3,6 +3,7 @@ package com.example.demo.exception;
 import com.example.demo.exception.taskexceptions.TaskNotFound;
 import com.example.demo.exception.userexceptions.EmailAlreadyExistsException;
 import com.example.demo.exception.userexceptions.UserNotFound;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -57,6 +58,11 @@ public class GlobalExceptionHandler {
                 e.getMessage(),
                 LocalDateTime.now()
         );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResp);
+    }
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResp> handleDataIntegrityViolation(DataIntegrityViolationException e){
+        ErrorResp errorResp = new ErrorResp(HttpStatus.CONFLICT.value(), "Ja existe um registro com os mesmos valores ", LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResp);
     }
 }

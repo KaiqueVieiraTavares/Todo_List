@@ -10,7 +10,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserRegisterDto {
-    @NotEmpty @Size(min = 8, max = 20) private  String name;
-    @NotEmpty @Size(min = 5) private String email;
-    @NotEmpty @Size(min = 8) private String password;
+    @NotEmpty
+    @Size(min = 8, max = 20)
+    private String name;
+
+    @NotEmpty
+    @Size(min = 5)
+    private String email;
+
+    @NotEmpty
+    @Size(min = 8)
+    private String password;
 }

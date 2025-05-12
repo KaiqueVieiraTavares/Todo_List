@@ -2,21 +2,19 @@ package com.example.demo.services;
 
 import com.example.demo.dtos.task.TaskCreateDto;
 import com.example.demo.dtos.task.TaskDto;
+import com.example.demo.dtos.task.TaskUpdateDto;
 import com.example.demo.entities.TaskEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.exception.taskexceptions.TaskNotFound;
-import com.example.demo.exception.userexceptions.UserNotFound;
-import com.example.demo.infra.security.CustomUserDetailsService;
-import com.example.demo.infra.security.SecurityFilter;
-import com.example.demo.infra.security.SecurityUtils;
+
 import com.example.demo.repositories.TaskRepository;
 import com.example.demo.repositories.UserRepository;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Service;
 
-import java.nio.file.AccessDeniedException;
+import org.modelmapper.ModelMapper;
+
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,49 +30,40 @@ public class TaskService {
         this.userRepository = userRepository;
     }
 
-
-    private TaskEntity validateTaskAcess(UUID taskId) throws AccessDeniedException {
-        TaskEntity taskEntity = taskRepository.findById(taskId).orElseThrow(()-> new TaskNotFound("Tarefa nao encontrada"));
-        if(!SecurityUtils.isAdmin() && !taskEntity.getUser().getId().equals((SecurityUtils.getId()))){
-            throw new AccessDeniedException("Acesso negado");
-        }
-        return taskEntity;
-    }
-
-
-
-    public List<TaskDto> getAllTasksByUserID() {
-        UUID userId = SecurityUtils.getId();
-        List<TaskEntity> taskEntities = taskRepository.findByUserId(userId);
+    public List<TaskDto> getAllTasksByUserID(UUID userId) {
+        List<TaskEntity> taskEntities = taskRepository.findByUser_Id(userId);
         return taskEntities.stream().map(task -> modelMapper.map(task, TaskDto.class)).toList();
     }
 
-    public TaskDto getTask(UUID taskID) throws AccessDeniedException {
-         TaskEntity taskEntity = validateTaskAcess(taskID);
+    public TaskDto getTask(UUID userId, UUID taskId)  {
+        TaskEntity taskEntity = taskRepository.findByUser_IdAndTaskId(userId, taskId)
+                .orElseThrow(()-> new TaskNotFound("Tarefa ou usuario nao encontrado"));
+
         return modelMapper.map(taskEntity, TaskDto.class);
     }
 
     @Transactional
-    public void deleteTask( UUID taskId) throws AccessDeniedException {
-        taskRepository.delete(validateTaskAcess(taskId));
+    public void deleteTask( UUID userId, UUID taskId)  {
+        if (!(taskRepository.existsByUser_IdAndId(userId, taskId))) {
+            throw new TaskNotFound("Tarefa ou usuario nao encontrado");
+        }
+        taskRepository.deleteByUser_IdAndId(userId, taskId);
     }
 
     @Transactional
-    public TaskDto updateTask(TaskDto taskDto, UUID taskId) throws AccessDeniedException {
+    public TaskDto updateTask(TaskUpdateDto taskDto, UUID userId, UUID taskId) {
 
-        TaskEntity taskEntity = validateTaskAcess(taskId);
+        TaskEntity taskEntity = taskRepository.findByUser_IdAndTaskId(userId, taskId)
+                        .orElseThrow(()-> new TaskNotFound("Tarefa ou usuario nao encontrado"));
         taskEntity.setName(taskDto.getName());
         taskEntity.setDescription(taskDto.getDescription());
-
-        return modelMapper.map(taskRepository.save(taskEntity), TaskDto.class);
+        TaskEntity savedTask = (taskRepository.save(taskEntity));
+        return modelMapper.map(savedTask, TaskDto.class);
     }
 
-    // Service: Problema na conversão do User
+    //problema na conversão do User
     @Transactional
-    public TaskDto createTask(TaskCreateDto taskDto) {
-        UUID userID = SecurityUtils.getId();
-        UserEntity user = userRepository.findById(userID).orElseThrow(()-> new UserNotFound
-                ("Usuario nao encontrado"));
+    public TaskDto createTask(TaskCreateDto taskDto, UserEntity user) {
             TaskEntity taskEntity = new TaskEntity();
             taskEntity.setName(taskDto.getName());
             taskEntity.setDescription(taskDto.getDescription());
@@ -83,15 +72,16 @@ public class TaskService {
 
             TaskEntity savedTask = taskRepository.save(taskEntity);
 
-        // Mapeamento manual (ou usando ModelMapper configurado)
         return modelMapper.map(savedTask, TaskDto.class);
     }
 
     @Transactional
-    public TaskDto handleTask(UUID taskId) throws AccessDeniedException {
-        TaskEntity taskEntity = validateTaskAcess(taskId);
+    public TaskDto handleTask(UUID userId, UUID taskId) {
+        TaskEntity taskEntity = taskRepository.findByUser_IdAndTaskId(userId, taskId)
+                        .orElseThrow(() -> new TaskNotFound("Tarefa ou usuario nao encontrado"));
         taskEntity.setDid(!taskEntity.isDid());
-        return modelMapper.map(taskRepository.save(taskEntity), TaskDto.class);
+        TaskEntity savedTask = taskRepository.save(taskEntity);
+        return modelMapper.map(savedTask, TaskDto.class);
     }
 }
 

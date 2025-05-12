@@ -32,7 +32,7 @@ public class AuthService {
             throw new BadCredentialsException("Senha incorreta");
         }
         String token = tokenService.generateToken(user);
-        return new ResponseDto(user.getName(), token);
+        return new ResponseDto(user.getId(), user.getName(), token);
     }
 
     public ResponseDto registerUser(UserRegisterDto userRegisterDto){
@@ -49,6 +49,6 @@ public class AuthService {
         user.setRole(Role.USER);
         userRepository.save(user);
         String token = tokenService.generateToken(user);
-        return new ResponseDto(user.getName(), token);
+        return new ResponseDto(user.getId(), user.getName(), token);
     }
 }

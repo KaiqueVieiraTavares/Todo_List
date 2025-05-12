@@ -2,6 +2,7 @@ package com.example.demo;
 
 import com.example.demo.dtos.task.TaskCreateDto;
 import com.example.demo.dtos.task.TaskDto;
+import com.example.demo.dtos.task.TaskUpdateDto;
 import com.example.demo.dtos.user.UserDto;
 import com.example.demo.entities.TaskEntity;
 import com.example.demo.entities.UserEntity;
@@ -27,7 +28,11 @@ public class TestFixtures {
         return new TaskCreateDto(name, description);
     }
 
-    public static TaskDto createTaskDto(String name, String description, boolean did, UUID userId){
-        return new TaskDto(name, description, did, userId);
+    public static TaskDto createTaskDto(String name, String description, boolean did, UUID taskId, UUID userId){
+        return new TaskDto(name, description, did, taskId, userId);
+    }
+
+    public static TaskUpdateDto createTaskUpdateDto(String name, String description){
+        return new TaskUpdateDto(name, description);
     }
 }

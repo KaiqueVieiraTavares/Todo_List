@@ -9,8 +9,8 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
-@Getter
+@Table(name = "task_entity",
+uniqueConstraints = @UniqueConstraint(columnNames = {"name", "user_id"}))
 public class TaskEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -19,7 +19,7 @@ public class TaskEntity {
     private String name;
     @Column(nullable = false)
     private String description;
-    @Getter
+
     private boolean did;
     @ManyToOne
     @JoinColumn(name = "user_id")

@@ -11,12 +11,7 @@ public class ModelMapperConfig {
 
     @Bean
     public ModelMapper modelMapper() {
-        ModelMapper modelMapper = new ModelMapper();
-
-        modelMapper.createTypeMap(TaskEntity.class, TaskDto.class)
-                .addMapping(src -> src.getUser().getId(), TaskDto::setUserId);
-
-        return modelMapper;
+        return new ModelMapper();
     }
 
 
